@@ -33,6 +33,11 @@ class scoreboard extends uvm_scoreboard;
       m_item.xact_num = item_queue[0].xact_num;
       void'(item_queue.pop_front());   
     end
+    else begin
+      if  (type_scr1_ialu_cmd_sel_e'(m_item.command) inside {ext_list}) begin
+        `uvm_fatal("SB", $sformatf("Invalid input data\n%s", m_item.convert2string()))
+      end
+    end
 
     `uvm_info("SB" , $sformatf("Received xact # %d  \n%s", m_item.xact_num, m_item.convert2string()), UVM_LOW)
 
@@ -42,116 +47,130 @@ class scoreboard extends uvm_scoreboard;
       end
       SCR1_IALU_CMD_AND: begin
         if ((m_item.main_op1 & m_item.main_op2) != m_item.main_res) begin 
-          `uvm_fatal("SB", $sformatf("AND is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("AND is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 & m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_OR: begin
         if ((m_item.main_op1 | m_item.main_op2) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("OR is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("OR is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 | m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_XOR: begin
         if ((m_item.main_op1 ^ m_item.main_op2) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("XOR is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("XOR is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 ^ m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_ADD: begin
         if ((m_item.main_op1 + m_item.main_op2) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("ADD is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("ADD is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 + m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_SUB: begin
         if ((m_item.main_op1 - m_item.main_op2) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("SUB is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 - m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_SUB_LT: begin
         if (($signed(m_item.main_op1) < $signed(m_item.main_op2)) != m_item.comp_res) begin
-          `uvm_fatal("SB", $sformatf("SUB_LT is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB_LT is incorrect\n%s,  expected: %d", m_item.convert2string(), ( $signed(m_item.main_op1) < $signed(m_item.main_op2))));
         end
       end
       SCR1_IALU_CMD_SUB_LTU: begin
         if (($unsigned(m_item.main_op1) < $unsigned(m_item.main_op2)) != m_item.comp_res) begin
-          `uvm_fatal("SB", $sformatf("SUB_LTU is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB_LTU is incorrect\n%s,  expected: %d", m_item.convert2string(), ($unsigned(m_item.main_op1) < $unsigned(m_item.main_op2))));
         end
       end
       SCR1_IALU_CMD_SUB_EQ: begin
         if ((m_item.main_op1 == m_item.main_op2) != m_item.comp_res) begin
-          `uvm_fatal("SB", $sformatf("SUB_EQ is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB_EQ is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 == m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_SUB_NE: begin
          if ((m_item.main_op1 != m_item.main_op2) != m_item.comp_res) begin
-          `uvm_fatal("SB", $sformatf("SUB_NE is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB_NE is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 != m_item.main_op2)));
         end
       end
       SCR1_IALU_CMD_SUB_GE: begin
         if (($signed(m_item.main_op1) >= $signed(m_item.main_op2)) != m_item.comp_res) begin
-          `uvm_fatal("SB", $sformatf("SUB_GE is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB_GE is incorrect\n%s,  expected: %d", m_item.convert2string(), ($signed(m_item.main_op1) >= $signed(m_item.main_op2))));
         end
       end
       SCR1_IALU_CMD_SUB_GEU: begin
         if (($unsigned(m_item.main_op1) >= $unsigned(m_item.main_op2)) != m_item.comp_res) begin
-          `uvm_fatal("SB", $sformatf("SUB_GEU is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SUB_GEU is incorrect\n%s,  expected: %d", m_item.convert2string(), ($unsigned(m_item.main_op1) >= $unsigned(m_item.main_op2))));
         end
       end
       SCR1_IALU_CMD_SLL: begin
         if ((m_item.main_op1 << (m_item.main_op2 % `SCR1_XLEN)) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("SLL is incorrect\n%s\n%d", m_item.convert2string(), (m_item.main_op1 << m_item.main_op2)));
+          `uvm_fatal("SB", $sformatf("SLL is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 << (m_item.main_op2 % `SCR1_XLEN))));
         end
       end
       SCR1_IALU_CMD_SRL: begin
         if ((m_item.main_op1 >> (m_item.main_op2 % `SCR1_XLEN)) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("SRL is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SRL is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 >> (m_item.main_op2 % `SCR1_XLEN))));
         end
       end
       SCR1_IALU_CMD_SRA: begin
         if ((m_item.main_op1 >>> (m_item.main_op2 % `SCR1_XLEN)) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("SRA is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("SRA is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 >>> (m_item.main_op2 % `SCR1_XLEN))));
         end
       end
     `ifdef SCR1_RVM_EXT
       SCR1_IALU_CMD_MUL: begin
-        if (($unsigned(m_item.main_op1) * $unsigned(m_item.main_op2)) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("MUL is incorrect\n%s", m_item.convert2string()));
+        if (($unsigned(m_item.main_op1) * $unsigned(m_item.main_op2)) != m_item.main_res) begin 
+          `uvm_fatal("SB", $sformatf("MUL is incorrect\n%s,  expected: %d", m_item.convert2string(), ($unsigned(m_item.main_op1) * $unsigned(m_item.main_op2))));
         end
       end
       SCR1_IALU_CMD_MULHU: begin
-        mul_res = m_item.main_op1 * m_item.main_op2; //($unsigned(m_item.main_op1) * $unsigned(m_item.main_op2)) //TODO
+        mul_res = $unsigned(m_item.main_op1) * $unsigned(m_item.main_op2); 
         if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("MULHU is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("MULHU is incorrect\n%s,  expected: %d", m_item.convert2string(), (mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN])));
         end
       end
       SCR1_IALU_CMD_MULHSU: begin
-        mul_res = m_item.main_op1 * m_item.main_op2; //(m_item.main_op1 * $unsigned(m_item.main_op2)) //TODO
-        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("MULHSU is incorrect\n%s,", m_item.convert2string()));
+        mul_res = $signed(m_item.main_op1) * $unsigned(m_item.main_op2);
+        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin // TODO fix bug
+          `uvm_fatal("SB", $sformatf("MULHSU is incorrect\n%s,,  expected: %d", m_item.convert2string(), (mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN])));
         end
       end
       SCR1_IALU_CMD_MULH: begin
         mul_res = m_item.main_op1 * m_item.main_op2;
-        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("MULH is incorrect\n%s", m_item.convert2string()));
+        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin //TODO fix bug
+          `uvm_fatal("SB", $sformatf("MULH is incorrect\n%s,  expected: %d", m_item.convert2string(), (mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN])));
         end
       end
       SCR1_IALU_CMD_DIV: begin
-        if ((m_item.main_op1 / m_item.main_op2) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("DIV is incorrect\n%s", m_item.convert2string()));
+        if (m_item.main_op2 == '0) begin
+          if (m_item.main_res != '1) begin
+            `uvm_fatal("SB", $sformatf("DIV by 0 is incorrect\n%s,  expected: %d", m_item.convert2string(), ('1)));
+          end
+        end
+        else begin
+          if ((m_item.main_op1 / m_item.main_op2) != m_item.main_res) begin
+            `uvm_fatal("SB", $sformatf("DIV is incorrect\n%s,  expected: %d", m_item.convert2string(), ((m_item.main_op1 / m_item.main_op2))));
+          end
         end
       end
       SCR1_IALU_CMD_DIVU: begin
-        if (($unsigned(m_item.main_op1) / $unsigned(m_item.main_op2)) != m_item.main_res) begin //TODO div 0
-         `uvm_fatal("SB", $sformatf("DIV is incorrect\n%s", m_item.convert2string()));
-        end  
+        if (m_item.main_op2 == '0) begin
+          if (m_item.main_res != '1) begin
+            `uvm_fatal("SB", $sformatf("DIV by 0 is incorrect\n%s,  expected: %d", m_item.convert2string(), ('1)));
+          end
+        end
+        else begin
+          if (($unsigned(m_item.main_op1) / $unsigned(m_item.main_op2)) != m_item.main_res) begin
+          `uvm_fatal("SB", $sformatf("DIV is incorrect\n%s,  expected: %d", m_item.convert2string(), ($unsigned(m_item.main_op1) / $unsigned(m_item.main_op2))));
+          end  
+        end
       end
       SCR1_IALU_CMD_REM: begin
          if ((m_item.main_op1 % m_item.main_op2) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("REM is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("REM is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 % m_item.main_op2)));
         end     
       end
       SCR1_IALU_CMD_REMU: begin
         if (($unsigned(m_item.main_op1) % $unsigned(m_item.main_op2)) != m_item.main_res) begin
-          `uvm_fatal("SB", $sformatf("REMU is incorrect\n%s", m_item.convert2string()));
+          `uvm_fatal("SB", $sformatf("REMU is incorrect\n%s,  expected: %d", m_item.convert2string(), ($unsigned(m_item.main_op1) % $unsigned(m_item.main_op2))));
         end
       end 
     `endif

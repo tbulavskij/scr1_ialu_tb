@@ -20,9 +20,9 @@ class item extends uvm_sequence_item;
 
   constraint item_c{
     xact_delay dist {0:=20, [1:5]:/80};
-    main_op1 inside {[500:1000]};
-    main_op2 inside {[1:50]};
-   // !(command inside {ext_list});
+   // main_op1 inside {[500:1000]};
+   // main_op2 inside {[0:0]};
+   //(command inside { SCR1_IALU_CMD_MULHU});
   }
 
   virtual function string convert2string();
