@@ -9,7 +9,7 @@ build:
 	vlog -f $(work)/file_list.f -work $(build)/ -cover bcestf -covercells
 
 run:
-	vsim build.tb_top -c -do "run -all; exit;" +UVM_TESTNAME=ext_test +ITEM_NUM=500
+	vsim build.tb_top -c -do "run -all; exit;" +UVM_TESTNAME=ext_test +ITEM_NUM=50000
 
 gui:
 	vsim build.tb_top -do "add wave -position insertpoint sim:/tb_top/_if/*;" +UVM_TESTNAME=ext_test +ITEM_NUM=500 -coverage

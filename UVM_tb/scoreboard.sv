@@ -111,7 +111,7 @@ class scoreboard extends uvm_scoreboard;
         end
       end
       SCR1_IALU_CMD_SRA: begin
-        if ((m_item.main_op1 >>> (m_item.main_op2 % `SCR1_XLEN)) != m_item.main_res) begin
+        if (32'($signed(m_item.main_op1) >>> (m_item.main_op2 % `SCR1_XLEN)) != m_item.main_res) begin
           `uvm_fatal("SB", $sformatf("SRA is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 >>> (m_item.main_op2 % `SCR1_XLEN))));
         end
       end
@@ -128,33 +128,33 @@ class scoreboard extends uvm_scoreboard;
         end
       end
       SCR1_IALU_CMD_MULHSU: begin
-        mul_res = $signed(m_item.main_op1) * $unsigned(m_item.main_op2);
-        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin // TODO fix bug
+        mul_res = ($signed({{32{m_item.main_op1[31]}}, m_item.main_op1}) * $unsigned({32'b0, m_item.main_op2}));
+        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin 
           `uvm_fatal("SB", $sformatf("MULHSU is incorrect\n%s,,  expected: %d", m_item.convert2string(), (mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN])));
         end
       end
       SCR1_IALU_CMD_MULH: begin
-        mul_res = m_item.main_op1 * m_item.main_op2;
-        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin //TODO fix bug
+        mul_res = $signed(m_item.main_op1) * $signed(m_item.main_op2);
+        if ((mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN]) != m_item.main_res) begin 
           `uvm_fatal("SB", $sformatf("MULH is incorrect\n%s,  expected: %d", m_item.convert2string(), (mul_res[`SCR1_XLEN*2-1:`SCR1_XLEN])));
         end
       end
       SCR1_IALU_CMD_DIV: begin
         if (m_item.main_op2 == '0) begin
           if (m_item.main_res != '1) begin
-            `uvm_fatal("SB", $sformatf("DIV by 0 is incorrect\n%s,  expected: %d", m_item.convert2string(), ('1)));
+            `uvm_fatal("SB", $sformatf("DIV by 0 is incorrect\n%s,  expected: %d", m_item.convert2string(), (32'b1)));
           end
         end
         else begin
-          if ((m_item.main_op1 / m_item.main_op2) != m_item.main_res) begin
-            `uvm_fatal("SB", $sformatf("DIV is incorrect\n%s,  expected: %d", m_item.convert2string(), ((m_item.main_op1 / m_item.main_op2))));
+          if (32'($signed(m_item.main_op1) / $signed(m_item.main_op2)) != m_item.main_res) begin
+            `uvm_fatal("SB", $sformatf("DIV is incorrect\n%s,  expected: %d", m_item.convert2string(), (($signed(m_item.main_op1) / $signed(m_item.main_op2)))));
           end
         end
       end
       SCR1_IALU_CMD_DIVU: begin
         if (m_item.main_op2 == '0) begin
-          if (m_item.main_res != '1) begin
-            `uvm_fatal("SB", $sformatf("DIV by 0 is incorrect\n%s,  expected: %d", m_item.convert2string(), ('1)));
+          if (m_item.main_res != 32'b1) begin
+            `uvm_fatal("SB", $sformatf("DIV by 0 is incorrect\n%s,  expected: %d", m_item.convert2string(), (32'b1)));
           end
         end
         else begin
@@ -164,7 +164,7 @@ class scoreboard extends uvm_scoreboard;
         end
       end
       SCR1_IALU_CMD_REM: begin
-         if ((m_item.main_op1 % m_item.main_op2) != m_item.main_res) begin
+         if ((32'($signed(m_item.main_op1) % $signed(m_item.main_op2))) != m_item.main_res) begin
           `uvm_fatal("SB", $sformatf("REM is incorrect\n%s,  expected: %d", m_item.convert2string(), (m_item.main_op1 % m_item.main_op2)));
         end     
       end
