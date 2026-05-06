@@ -16,7 +16,6 @@ class monitor extends uvm_monitor;
   type_scr1_ialu_cmd_sel_e prev_command;
 
   semaphore vld_lock = new(0);
-  semaphore rdy_lock = new(0);
 
   virtual function void build_phase(uvm_phase phase);
     super.build_phase(phase);
@@ -32,6 +31,13 @@ class monitor extends uvm_monitor;
         fork
           forever begin
             @(posedge vif.clk)
+            if (!vif.rst_n) begin
+             // vld_lock.put(1);
+
+            end
+          end
+          forever begin
+            @(posedge vif.clk)
             if (type_scr1_ialu_cmd_sel_e'(vif.exu2ialu_cmd_i) inside {ext_list}) begin
               if (vif.exu2ialu_rvm_cmd_vd_i) begin 
                 item m_item = item::type_id::create("m_item");
@@ -41,7 +47,6 @@ class monitor extends uvm_monitor;
                 m_item.xact_num = xact_counter;
                 mon_analysis_port_in.write(m_item); 
                 xact_counter++ ;
-                rdy_lock.put(1); 
                 vld_lock.get(1);
               end
             end
@@ -51,7 +56,6 @@ class monitor extends uvm_monitor;
             if (type_scr1_ialu_cmd_sel_e'(vif.exu2ialu_cmd_i) inside {ext_list}) begin
               if (vif.ialu2exu_rvm_res_rdy_o & vif.exu2ialu_rvm_cmd_vd_i) begin
                 item m_item;
-                rdy_lock.get(1);
                 m_item = item::type_id::create("m_item");
                 m_item.main_res = vif.ialu2exu_main_res_o;
                 mon_analysis_port_out.write(m_item);  

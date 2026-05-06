@@ -10,19 +10,28 @@ class scoreboard extends uvm_scoreboard;
 
   uvm_analysis_imp_port_main_in #(item, scoreboard) m_analysis_imp_main_in;
   uvm_analysis_imp_port_main_out #(item, scoreboard) m_analysis_imp_main_out;
+  uvm_analysis_imp_port_rst #(item_rst, scoreboard) m_analysis_imp_rst;
 
   item item_queue[$];
-
+ 
   logic [`SCR1_XLEN*2 - 1:0] mul_res;
 
   virtual function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     m_analysis_imp_main_in = new("m_analysis_imp_main_in", this);
     m_analysis_imp_main_out = new("m_analysis_imp_main_out", this);
+    m_analysis_imp_rst = new("m_analysis_imp_rst", this);
   endfunction
 
   virtual function void write_port_main_in(item m_item);
     item_queue.push_back(m_item);
+  endfunction
+
+  virtual function void write_port_rst(item m_item);
+     if ((item_queue.size() > 0) && (m_item.rst_val == 0)) begin
+      `uvm_info("SB(rst)",$sformatf("Resetted xact #%d", item_queue[0].xact_num), UVM_LOW);
+      item_queue = {};
+    end
   endfunction
 
   virtual function void write_port_main_out(item m_item);
@@ -175,7 +184,7 @@ class scoreboard extends uvm_scoreboard;
       end 
     `endif
     default: begin
-      `uvm_error("SB(out)",$sformatf("Unidentified xact - %s", m_item.convert2string()));
+      `uvm_fatal("SB(out)",$sformatf("Unidentified xact - %s", m_item.convert2string()));
       void'(item_queue.pop_front());
     end
     endcase

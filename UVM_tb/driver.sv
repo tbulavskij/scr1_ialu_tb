@@ -16,7 +16,6 @@ class driver extends uvm_driver #(item);
 
   virtual task run_phase(uvm_phase phase);
     super.run_phase(phase);
-    vif.rst_n = 1;
     forever begin
       item m_item;
       seq_item_port.get_next_item(m_item);
@@ -28,7 +27,9 @@ class driver extends uvm_driver #(item);
   virtual task drive_item(item m_item);
       if (m_item.command inside {ext_list}) begin
         @(posedge vif.clk);
-        vif.exu2ialu_rvm_cmd_vd_i <= 1;
+        if (vif.rst_n) begin  //TODO
+          vif.exu2ialu_rvm_cmd_vd_i <= 1;
+        end
         vif.exu2ialu_main_op1_i <= m_item.main_op1;
         vif.exu2ialu_main_op2_i <= m_item.main_op2;
         vif.exu2ialu_cmd_i <= ialu_if_sv_unit::type_scr1_ialu_cmd_sel_e'(m_item.command);

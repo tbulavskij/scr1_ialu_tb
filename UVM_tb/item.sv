@@ -11,6 +11,8 @@ class item extends uvm_sequence_item;
   rand logic [`SCR1_XLEN-1:0]   addr_op2;
   logic      [`SCR1_XLEN-1:0]   addr_res; 
 
+  bit rst_val;
+
   rand int xact_delay;
   int xact_num;
 
@@ -19,9 +21,9 @@ class item extends uvm_sequence_item;
   endfunction
 
   constraint item_c{
-    xact_delay dist {0:=20, [1:5]:/80};
-   // main_op1 inside {[500:1000]};
-   // main_op2 inside {[0:0]};
+    xact_delay dist {1:=20, [1:5]:/80};
+    main_op1 inside {[500:1000]};
+    main_op2 inside {[0:500]};
    //(command inside { SCR1_IALU_CMD_MULHU});
   }
 

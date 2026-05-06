@@ -3,9 +3,11 @@
 
    `uvm_analysis_imp_decl(_port_main_in)
    `uvm_analysis_imp_decl(_port_main_out)  
+   `uvm_analysis_imp_decl(_port_rst) 
 
    uvm_analysis_imp_port_main_in  #(item, coverage_collector) m_analysis_imp_main_in;
    uvm_analysis_imp_port_main_out #(item, coverage_collector) m_analysis_imp_main_out;
+   uvm_analysis_imp_port_rst #(item_rst, coverage_collector) m_analysis_imp_rst;
 
   covergroup cg with function sample(item m_item); 
     cp_op1: coverpoint m_item.main_op1 {
@@ -58,8 +60,8 @@
        bins NONE = {SCR1_IALU_CMD_NONE};        // IALU disable  
     }
 
-    cp_main_cross: cross cp_op1, cp_op2, cp_main_res, cp_comm {bins c_main = binsof(cp_comm.MAIN);}   
-    cp_comp_cross: cross cp_op1, cp_op2, cp_comp_res, cp_comm {bins c_main = binsof(cp_comm.COMP);}
+    cp_main_cross: cross cp_op1, cp_op2, cp_comm {bins c_main = binsof(cp_comm.MAIN);}   
+    cp_comp_cross: cross cp_op1, cp_op2, cp_comm {bins c_main = binsof(cp_comm.COMP);}
    
 
   endgroup
@@ -69,6 +71,7 @@
     cg = new();
     m_analysis_imp_main_in = new("m_analysis_imp_main_in", this);
     m_analysis_imp_main_out = new("m_analysis_imp_main_out", this);
+    m_analysis_imp_rst = new("m_analysis_imp_rst", this);
   endfunction
 
   virtual function void write_port_main_in(item m_item);
@@ -76,6 +79,10 @@
   endfunction
 
   virtual function void write_port_main_out(item m_item);
+    cg.sample(m_item);
+  endfunction
+
+   virtual function void write_port_rst(item m_item);
     cg.sample(m_item);
   endfunction
 

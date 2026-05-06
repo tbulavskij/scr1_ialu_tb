@@ -6,6 +6,7 @@ class ext_test extends uvm_test;
 
   env  				     e0;
   sequence1 		   seq;
+  sequence_rst     seq_rst;
   virtual	ialu_if  vif;
 
   virtual function void build_phase(uvm_phase phase);
@@ -19,11 +20,18 @@ class ext_test extends uvm_test;
 
     seq = sequence1::type_id::create("seq");
     seq.randomize();
+
+    seq_rst = sequence_rst::type_id::create("seq_rst");
+    seq_rst.randomize();
+    
   endfunction
 
   virtual task run_phase(uvm_phase phase);
-    phase.raise_objection(this);
-    seq.start(e0.a0.s0);
-    phase.drop_objection(this); 
+     phase.raise_objection(this);
+    fork 
+      seq.start(e0.a0.s0);
+      seq_rst.start(e0.a_rst.s_rst);
+    join_any
+    phase.drop_objection(this);
   endtask
 endclass
